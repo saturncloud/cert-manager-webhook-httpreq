@@ -16,3 +16,8 @@ Webhook is built off of the [Cert Manager Webhook Example](https://github.com/ce
 ```bash
 make test
 ```
+
+
+### Linters
+
+This repo uses golangci-lint. Follow the installation instructions [here](https://github.com/golangci/golangci-lint?tab=readme-ov-file#install-golangci-lint)

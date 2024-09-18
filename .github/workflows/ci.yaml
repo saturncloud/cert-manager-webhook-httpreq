@@ -20,12 +20,10 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
-      - name: Install golint
-        run: go install golang.org/x/lint/golint
-      - name: Vet
-        run: make vet
-      - name: Linter
-        run: make lint
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.60
       - name: Formatting
         run: make format-check
   test:

@@ -11,11 +11,8 @@ KUBEBUILDER_VERSION=1.28.0
 
 HELM_FILES := $(shell find deploy/httpreq-webhook)
 
-vet:
-	@$(GO) vet ./...
-
 lint:
-	@golint -set_exit_status ./...
+	@golangci-lint run ./...
 
 format:
 	@gofmt -l -w ./
