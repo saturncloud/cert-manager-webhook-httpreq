@@ -8,11 +8,11 @@ import (
 )
 
 var (
-	GroupName = os.Getenv("GROUP_NAME")
+	groupName = os.Getenv("GROUP_NAME")
 )
 
 func main() {
-	if GroupName == "" {
+	if groupName == "" {
 		panic("GROUP_NAME must be specified")
 	}
 
@@ -22,7 +22,7 @@ func main() {
 	// webhook, where the Name() method will be used to disambiguate between
 	// the different implementations.
 	cmd.RunWebhookServer(
-		GroupName,
+		groupName,
 		httpreq.New(),
 	)
 }

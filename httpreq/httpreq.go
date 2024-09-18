@@ -1,4 +1,4 @@
-// package httpreq implements cert-manager webhook as an HTTP request to an external server
+// Package httpreq implements cert-manager webhook as an HTTP request to an external server
 // based on the lego httpreq solver https://go-acme.github.io/lego/dns/httpreq/
 package httpreq
 
@@ -48,8 +48,8 @@ type IssuerConfig struct {
 	HeaderSecretRef struct{ Name, Namespace string } `json:"headerSecretRef"`
 }
 
-// GetUrl formats the endpoint URL for a given action
-func (ic IssuerConfig) GetUrl(action acme.ChallengeAction) (string, error) {
+// GetURL formats the endpoint URL for a given action
+func (ic IssuerConfig) GetURL(action acme.ChallengeAction) (string, error) {
 	var path string
 	switch action {
 	case acme.ChallengeActionPresent:
@@ -75,6 +75,7 @@ func (ic IssuerConfig) GetUrl(action acme.ChallengeAction) (string, error) {
 	return url, nil
 }
 
+// New creates an httpreq solver and returns it as a cert-manager webook Solver interface
 func New() webhook.Solver {
 	solver := &httpReqSolver{name: "httpreq", headers: http.Header{}}
 	if authorizationHeader != "" {
@@ -125,7 +126,7 @@ func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 		return err
 	}
 
-	url, err := cfg.GetUrl(ch.Action)
+	url, err := cfg.GetURL(ch.Action)
 	if err != nil {
 		return err
 	}

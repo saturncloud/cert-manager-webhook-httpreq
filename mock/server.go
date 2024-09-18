@@ -1,3 +1,4 @@
+// Package mock provides testing utilities for mocking an HTTPReq endpoint and DNS server
 package mock
 
 import (
@@ -6,30 +7,32 @@ import (
 	"net/http/httptest"
 )
 
-// NewHttpReqEndpoint creates a test httpreq endpoint and DNS server
-func NewHttpReqEndpoint() *HttpReqEndpoint {
-	mock := &HttpReqEndpoint{}
-	mock.server = httptest.NewServer(mock)
+// NewHTTPReqEndpoint creates a test httpreq endpoint and DNS server
+func NewHTTPReqEndpoint() *HTTPReqEndpoint {
+	mock := &HTTPReqEndpoint{}
+	mock.server = httptest.NewServer(http.HandlerFunc(mock.serveHTTP))
 	mock.dns = NewMockDNS()
 	mock.dns.Run()
 	return mock
 }
 
-// HttpReqEndpoint is a test httpreq endpoint that creates and deletes DNS records in a test DNS server
-type HttpReqEndpoint struct {
+// HTTPReqEndpoint is a test httpreq endpoint that creates and deletes DNS records in a test DNS server
+type HTTPReqEndpoint struct {
 	server *httptest.Server
 	dns    *DNS
 }
 
-func (hre *HttpReqEndpoint) URL() string {
+// URL returns the HTTP URL of the mock httpreq endpoint
+func (hre *HTTPReqEndpoint) URL() string {
 	return hre.server.URL
 }
 
-func (hre *HttpReqEndpoint) DNS() *DNS {
+// DNS returns the mock DNS server for the httpreq endpoint
+func (hre *HTTPReqEndpoint) DNS() *DNS {
 	return hre.dns
 }
 
-func (hre *HttpReqEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (hre *HTTPReqEndpoint) serveHTTP(w http.ResponseWriter, r *http.Request) {
 	var body map[string]string
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -47,7 +50,8 @@ func (hre *HttpReqEndpoint) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (hre *HttpReqEndpoint) Close() {
+// Close stops the test endpoint and DNS servers
+func (hre *HTTPReqEndpoint) Close() {
 	hre.dns.Close()
 	hre.server.Close()
 }
