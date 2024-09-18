@@ -89,3 +89,97 @@ subjects:
     kind: ServiceAccount
     name: {{ .Values.certManager.serviceAccountName }}
     namespace: {{ .Values.certManager.namespace }}
+{{- if .Values.secrets.clusterRole.enabled }}
+---
+# Grant the httpreq webhook permission to read issuer header secrets at cluster scope
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "httpreq-webhook.fullname" . }}:header-secrets
+  labels:
+    app: {{ include "httpreq-webhook.name" . }}
+    chart: {{ include "httpreq-webhook.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+    {{- if .Values.secrets.clusterRole.names }}
+    resourceNames:
+      {{- range $name := .Values.secrets.clusterRole.names }}
+      - {{ $name }}
+      {{- end }}
+    {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "httpreq-webhook.fullname" . }}:header-secrets
+  labels:
+    app: {{ include "httpreq-webhook.name" . }}
+    chart: {{ include "httpreq-webhook.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "httpreq-webhook.fullname" . }}:header-secrets
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ .Values.certManager.serviceAccountName }}
+    namespace: {{ .Values.certManager.namespace }}
+{{- end }}
+{{- if .Values.secrets.role.enabled }}
+{{- range $namespace, $names := .Values.secrets.role.namespaces }}
+---
+# Grant the httpreq webhook permission to read issuer header secrets at namespace scope
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "httpreq-webhook.fullname" $ }}:header-secrets
+  namespace: {{ $namespace }}
+  labels:
+    app: {{ include "httpreq-webhook.name" $ }}
+    chart: {{ include "httpreq-webhook.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+    {{- if $names }}
+    resourceNames:
+      {{- range $name := $names }}
+      - {{ $name }}
+      {{- end }}
+    {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "httpreq-webhook.fullname" $ }}:header-secrets
+  namespace: {{ $namespace }}
+  labels:
+    app: {{ include "httpreq-webhook.name" $ }}
+    chart: {{ include "httpreq-webhook.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "httpreq-webhook.fullname" $ }}:header-secrets
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ $.Values.certManager.serviceAccountName }}
+    namespace: {{ $.Values.certManager.namespace }}
+{{- end }}
+{{- end }}
