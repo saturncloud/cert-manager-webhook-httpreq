@@ -35,6 +35,25 @@ env: []
   #   - secretRef:
   #       name: httpreq-secret-envs
 
+
+secrets:
+  # Enable httpreq to get secrets at the cluster or namespace scope
+  clusterRole:
+    enabled: false
+    # Restrict allowed set of names
+    # null/empty list implies all names are permitted
+    names: []
+      # - secret1
+      # - secret2
+  role:
+    enabled: false
+    # Restrict allowed set of namespaces/names
+    # null/empty names list implies all names are permitted
+    namespaces: {}
+      # ns1:
+      #   - secret1
+      # ns2: []
+
 nodeSelector: {}
 
 tolerations: []
