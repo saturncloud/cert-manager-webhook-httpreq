@@ -21,9 +21,11 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: Vet
-        run: go vet ./...
+        run: make vet
       - name: Linter
-        run: golint ./...
+        run: make lint
+      - name: Formatting
+        run: make format-check
   test:
     name: Tests
     runs-on: ubunto-latest

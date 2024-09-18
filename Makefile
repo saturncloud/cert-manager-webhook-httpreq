@@ -11,11 +11,17 @@ KUBEBUILDER_VERSION=1.28.0
 
 HELM_FILES := $(shell find deploy/httpreq-webhook)
 
+vet:
+	@$(GO) vet ./...
+
 lint:
-	@golint ./...
+	@golint -set_exit_status ./...
 
 format:
-	@gofmt -d ./
+	@gofmt -l -w ./
+
+format-check:
+	@if test -z $(gofmt -l ./); then gofmt -d ./; exit 1; fi
 
 test: _test/kubebuilder-$(KUBEBUILDER_VERSION)-$(OS)-$(ARCH)/etcd _test/kubebuilder-$(KUBEBUILDER_VERSION)-$(OS)-$(ARCH)/kube-apiserver _test/kubebuilder-$(KUBEBUILDER_VERSION)-$(OS)-$(ARCH)/kubectl
 	TEST_ASSET_ETCD=_test/kubebuilder-$(KUBEBUILDER_VERSION)-$(OS)-$(ARCH)/etcd \
