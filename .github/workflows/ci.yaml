@@ -20,6 +20,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
+      - name: Install golint
+        run: go install golang.org/x/lint/golint
       - name: Vet
         run: make vet
       - name: Linter
