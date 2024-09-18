@@ -5,7 +5,6 @@ package httpreq
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -148,11 +147,7 @@ func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 		if err != nil {
 			return err
 		}
-		for key, b64 := range headerSecret.Data {
-			val, err := base64.StdEncoding.DecodeString(string(b64))
-			if err != nil {
-				return err
-			}
+		for key, val := range headerSecret.Data {
 			headers[key] = []string{string(val)}
 		}
 	}
