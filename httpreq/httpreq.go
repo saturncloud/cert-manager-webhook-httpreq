@@ -159,7 +159,9 @@ func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 
 	body := ChallengeBody{Fqdn: ch.ResolvedFQDN, Value: ch.Key}
 	var buffer bytes.Buffer
-	json.NewEncoder(&buffer).Encode(body)
+	if err = json.NewEncoder(&buffer).Encode(body); err != nil {
+		return err
+	}
 
 	request, err := http.NewRequest("POST", url, &buffer)
 	if err != nil {

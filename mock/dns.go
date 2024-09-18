@@ -86,7 +86,10 @@ func (d *DNS) handleDNSRequest(w dns.ResponseWriter, req *dns.Msg) {
 			}
 		}
 	}
-	w.WriteMsg(msg)
+	err := w.WriteMsg(msg)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (d *DNS) addDNSAnswer(q dns.Question, msg *dns.Msg, req *dns.Msg) error {

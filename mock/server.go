@@ -36,7 +36,10 @@ func (hre *HTTPReqEndpoint) serveHTTP(w http.ResponseWriter, r *http.Request) {
 	var body map[string]string
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			panic(err)
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
