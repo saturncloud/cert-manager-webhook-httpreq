@@ -1,0 +1,49 @@
+name: continuous integration
+on: push
+
+jobs:
+  cancel-previous:
+    name: Cancel previous runs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.0
+        with:
+          access_token: ${{ github.token }}
+  lint:
+    name: Go lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - name: Vet
+        run: go vet ./...
+      - name: Linter
+        run: golint ./...
+  test:
+    name: Tests
+    runs-on: ubunto-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+      - name: Run tests
+        run: make test
+  runs-complete:
+    name: Lint and test
+    needs: [lint, test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - if: ${{ needs['lint'].result != 'success' || needs['test'].result != 'success' }}
+        name: Fail
+        run: exit 1
+      - name: Tests complete
+        run: echo "Tests complete"
