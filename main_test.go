@@ -27,7 +27,7 @@ func TestRunsSuite(t *testing.T) {
 		acmetest.SetAllowAmbientCredentials(false),
 	}
 	if issuerConfig.Endpoint == "" {
-		mockEndpoint := mock.NewHttpReqEndpoint()
+		mockEndpoint := mock.NewHTTPReqEndpoint()
 		defer mockEndpoint.Close()
 
 		acmeOptions = append(

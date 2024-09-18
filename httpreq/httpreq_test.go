@@ -30,7 +30,7 @@ func TestHttpReqSolver_Present_Cleanup(t *testing.T) {
 	err := solver.Initialize(nil, done)
 	assert.NoError(t, err, "Expected Initialize not to error")
 
-	mockEndpoint := mock.NewHttpReqEndpoint()
+	mockEndpoint := mock.NewHTTPReqEndpoint()
 	configData, err := json.Marshal(map[string]string{
 		"endpoint": mockEndpoint.URL(),
 	})

@@ -33,10 +33,12 @@ type DNS struct {
 	sync.RWMutex
 }
 
+// Addr returns the address of the mock DNS server
 func (d *DNS) Addr() string {
 	return d.server.Addr
 }
 
+// Run initializes the mock DNS server
 func (d *DNS) Run() {
 	go func() {
 		<-d.stop
@@ -51,10 +53,12 @@ func (d *DNS) Run() {
 	}()
 }
 
+// Close stops the mock DNS server
 func (d *DNS) Close() {
 	close(d.stop)
 }
 
+// Present adds a TXT record to the mock DNS server
 func (d *DNS) Present(fqdn, value string) {
 	d.Lock()
 	defer d.Unlock()
@@ -62,6 +66,7 @@ func (d *DNS) Present(fqdn, value string) {
 	d.txtRecords[fqdn] = value
 }
 
+// Cleanup removes a TXT record from the mock DNS server
 func (d *DNS) Cleanup(fqdn string) {
 	d.Lock()
 	defer d.Unlock()
@@ -81,7 +86,10 @@ func (d *DNS) handleDNSRequest(w dns.ResponseWriter, req *dns.Msg) {
 			}
 		}
 	}
-	w.WriteMsg(msg)
+	err := w.WriteMsg(msg)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (d *DNS) addDNSAnswer(q dns.Question, msg *dns.Msg, req *dns.Msg) error {
