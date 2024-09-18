@@ -1,0 +1,42 @@
+groupName: acme-httpreq.saturncloud.io
+
+certManager:
+  namespace: cert-manager
+  serviceAccountName: cert-manager
+
+image:
+  repository: mycompany/webhook-image
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 443
+
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+hostAliases: []
+# - hostnames: ["dev.localtest.me"]
+#   ip: 192.168.1.98
+
+env: []
+  # - name: ENV1
+  #   value: somevalue
+  # - envFrom:
+  #   - secretRef:
+  #       name: httpreq-secret-envs
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
