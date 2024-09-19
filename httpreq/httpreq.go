@@ -15,6 +15,7 @@ import (
 
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook"
 	acme "github.com/cert-manager/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
+	logf "github.com/cert-manager/cert-manager/pkg/logs"
 	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -22,11 +23,13 @@ import (
 )
 
 var (
-	// authorizationHeaderVal is a default header value for authorization. Useful in cases where there is only ever one
+	// authorizationHeader is a default header value for authorization. Useful in cases where there is only ever one
 	// httpReq issuer so it doesn't need RBAC access to secrets. May be overridden by issuer config's header secret.
 	authorizationHeader = os.Getenv("HTTPREQ_AUTH_HEADER")
 	// authorizationHeaderName is the name for the default authorization header
 	authorizationHeaderName = getEnvWithDefault("HTTPREQ_AUTH_HEADER_NAME", "Authorization")
+
+	logger = logf.FromContext(context.Background(), "httpreq-webhook")
 )
 
 // ChallengeBody is the format for data sent to the remote server
@@ -95,24 +98,34 @@ func (hrs *httpReqSolver) Name() string {
 	return hrs.name
 }
 
-func (hrs *httpReqSolver) Present(ch *acme.ChallengeRequest) error {
+func (hrs *httpReqSolver) Present(ch *acme.ChallengeRequest) (err error) {
+	logger.Info("Present challenge", "fqdn", ch.ResolvedFQDN, "uid", ch.UID)
 	ch.Action = acme.ChallengeActionPresent
-	return hrs.challengeRequest(ch)
+	if err = hrs.challengeRequest(ch); err != nil {
+		logger.Error(err, "Present failed", "fqdn", ch.ResolvedFQDN, "uid", ch.UID)
+	}
+	return err
 }
 
-func (hrs *httpReqSolver) CleanUp(ch *acme.ChallengeRequest) error {
+func (hrs *httpReqSolver) CleanUp(ch *acme.ChallengeRequest) (err error) {
+	logger.Info("Cleanup challenge", "fqdn", ch.ResolvedFQDN, "uid", ch.UID)
 	ch.Action = acme.ChallengeActionCleanUp
-	return hrs.challengeRequest(ch)
+	if err = hrs.challengeRequest(ch); err != nil {
+		logger.Error(err, "Cleanup failed", "fqdn", ch.ResolvedFQDN, "uid", ch.UID)
+	}
+	return err
 }
 
 func (hrs *httpReqSolver) Initialize(kubeClientConfig *rest.Config, stopCh <-chan struct{}) error {
 	if kubeClientConfig == nil {
+		logger.Info("Skipping kubernetes client config")
 		return nil
 	}
 
+	logger.V(logf.InfoLevel).Info("Configuring kubernetes client")
 	clientset, err := kubernetes.NewForConfig(kubeClientConfig)
 	if err != nil {
-		return err
+		return fmt.Errorf("kubernetes client config failed: %s", err)
 	}
 
 	hrs.clientset = clientset
@@ -122,12 +135,12 @@ func (hrs *httpReqSolver) Initialize(kubeClientConfig *rest.Config, stopCh <-cha
 func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid config: %s", err)
 	}
 
 	url, err := cfg.GetURL(ch.Action)
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to parse httpreq url: %s", err)
 	}
 
 	headers := hrs.headers.Clone()
@@ -136,6 +149,7 @@ func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 			return errors.New("unable to retrieve headers secret, kube client was not configured")
 		}
 
+		name := cfg.HeaderSecretRef.Name
 		namespace := cfg.HeaderSecretRef.Namespace
 		if namespace == "" {
 			namespace = ch.ResourceNamespace
@@ -143,9 +157,9 @@ func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		headerSecret, err := hrs.clientset.CoreV1().Secrets(namespace).Get(ctx, cfg.HeaderSecretRef.Name, v1.GetOptions{})
+		headerSecret, err := hrs.clientset.CoreV1().Secrets(namespace).Get(ctx, name, v1.GetOptions{})
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read header secret %s/%s: %s", namespace, name, err)
 		}
 		for key, val := range headerSecret.Data {
 			headers[key] = []string{string(val)}
@@ -155,22 +169,22 @@ func (hrs *httpReqSolver) challengeRequest(ch *acme.ChallengeRequest) error {
 	body := ChallengeBody{Fqdn: ch.ResolvedFQDN, Value: ch.Key}
 	var buffer bytes.Buffer
 	if err = json.NewEncoder(&buffer).Encode(body); err != nil {
-		return err
+		return fmt.Errorf("encoding challenge body failed: %s", err)
 	}
 
 	request, err := http.NewRequest("POST", url, &buffer)
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid request: %s", err)
 	}
 	request.Header = headers
 
 	client := &http.Client{}
 	resp, err := client.Do(request)
 	if err != nil {
-		return err
+		return fmt.Errorf("request to httpreq endpoint failed: %s", err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("unexpected server response: %s", resp.Status)
+		return fmt.Errorf("unexpected httpreq endpoint response: %s", resp.Status)
 	}
 	return nil
 }
@@ -180,7 +194,7 @@ func loadConfig(cfgJSON *extapi.JSON) (cfg IssuerConfig, err error) {
 		return cfg, nil
 	}
 	if err := json.Unmarshal(cfgJSON.Raw, &cfg); err != nil {
-		return cfg, fmt.Errorf("error decoding solver config: %v", err)
+		return cfg, err
 	}
 
 	return cfg, nil
