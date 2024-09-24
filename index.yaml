@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   httpreq-webhook:
   - apiVersion: v1
+    appVersion: v0.1.5-alpha
+    created: "2024-09-24T20:47:45.376514946Z"
+    description: Cert-Manager HttpReq Webhook chart
+    digest: 6dfe36b5e62520be3a5a86c90c464d311331a89bc9eb5451885acab06d043fb1
+    name: httpreq-webhook
+    urls:
+    - https://github.com/saturncloud/cert-manager-webhook-httpreq/releases/download/httpreq-webhook-0.1.5-alpha/httpreq-webhook-0.1.5-alpha.tgz
+    version: 0.1.5-alpha
+  - apiVersion: v1
     appVersion: "1.0"
     created: "2024-09-24T19:39:24.789226038Z"
     description: A Helm chart for Kubernetes
@@ -10,4 +19,4 @@ entries:
     urls:
     - https://github.com/saturncloud/cert-manager-webhook-httpreq/releases/download/httpreq-webhook-0.1.0/httpreq-webhook-0.1.0.tgz
     version: 0.1.0
-generated: "2024-09-24T19:39:24.789231659Z"
+generated: "2024-09-24T20:47:45.37652244Z"
