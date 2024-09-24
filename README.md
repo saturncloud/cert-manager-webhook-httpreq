@@ -11,6 +11,14 @@ HttpReq protocol is based on the Let's Encrypt [HTTP Request provider](https://g
 
 Webhook is built off of the [Cert Manager Webhook Example](https://github.com/cert-manager/webhook-example)
 
+### Installing
+
+The chart in `deploy/httpreq-webhook` is packaged into release tags. Install via helm:
+```
+helm repo add cert-manager-webhook-httpreq https://saturncloud.github.io/cert-manager-webhook-httpreq/ --force-update
+helm install cert-manager-webhook-httpreq/httpreq-webhook
+```
+
 ### Running the test suite
 
 ```bash
