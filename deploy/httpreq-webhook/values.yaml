@@ -1,19 +1,30 @@
 groupName: acme-httpreq.saturncloud.io
 
-issuer:
-  enabled: false
-  name: httpreq-issuer
-  namespace:
+issuers: []
+  # - name: httpreq-issuer
+  #   namespace:
+  #   email:
+  #   endpoint:
+  #   privateKeySecret:
+  #   headersSecretRef:
+  #   #   name:
+  #   #   namespace:
 
-  # replace with "https://acme-v02.api.letsencrypt.org/directory" for prod
-  server: https://acme-staging-v02.api.letsencrypt.org/directory
+  #   # replace with "https://acme-v02.api.letsencrypt.org/directory" for prod
+  #   acmeServer: https://acme-staging-v02.api.letsencrypt.org/directory
 
-clusterIssuer:
-  enabled: false
-  name: httpreq-cluster-issuer
+clusterIssuers: []
+  # - name: httpreq-cluster-issuer
+  #   email:
+  #   endpoint:
+  #   privateKeySecret:
+  #   headersSecretRef:
+  #   #   name:
+  #   #   namespace:
 
-  # replace with "https://acme-v02.api.letsencrypt.org/directory" for prod
-  server: https://acme-staging-v02.api.letsencrypt.org/directory
+  #   # replace with "https://acme-v02.api.letsencrypt.org/directory" for prod
+  #   acmeServer: https://acme-staging-v02.api.letsencrypt.org/directory
+
 
 
 certManager:
