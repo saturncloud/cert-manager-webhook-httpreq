@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   httpreq-webhook:
   - apiVersion: v1
+    appVersion: v0.1.6
+    created: "2024-09-24T22:04:07.404526998Z"
+    description: Cert-Manager HttpReq Webhook chart
+    digest: 3cc2e8dbd5f13a0dcb23bd7de91891dc6afab778abdabb041f03ad97e74777f8
+    name: httpreq-webhook
+    urls:
+    - https://github.com/saturncloud/cert-manager-webhook-httpreq/releases/download/httpreq-webhook-0.1.6/httpreq-webhook-0.1.6.tgz
+    version: 0.1.6
+  - apiVersion: v1
     appVersion: v0.1.5
     created: "2024-09-24T21:13:38.649447271Z"
     description: Cert-Manager HttpReq Webhook chart
@@ -19,4 +28,4 @@ entries:
     urls:
     - https://github.com/saturncloud/cert-manager-webhook-httpreq/releases/download/httpreq-webhook-0.1.5-alpha/httpreq-webhook-0.1.5-alpha.tgz
     version: 0.1.5-alpha
-generated: "2024-09-24T21:13:38.649474101Z"
+generated: "2024-09-24T22:04:07.404542057Z"
