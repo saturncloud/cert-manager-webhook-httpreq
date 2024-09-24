@@ -1,5 +1,21 @@
 groupName: acme-httpreq.saturncloud.io
 
+issuer:
+  enabled: false
+  name: httpreq-issuer
+  namespace:
+
+  # replace with "https://acme-v02.api.letsencrypt.org/directory" for prod
+  server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+clusterIssuer:
+  enabled: false
+  name: httpreq-cluster-issuer
+
+  # replace with "https://acme-v02.api.letsencrypt.org/directory" for prod
+  server: https://acme-staging-v02.api.letsencrypt.org/directory
+
+
 certManager:
   namespace: cert-manager
   serviceAccountName: cert-manager
