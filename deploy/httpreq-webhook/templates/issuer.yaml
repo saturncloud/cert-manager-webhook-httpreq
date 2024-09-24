@@ -1,49 +1,49 @@
-{{- if .Values.issuer.enabled }}
+{{- range $issuer := .Values.issuers }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ .Values.issuer.name }}
-  namespace: {{ .Values.issuer.namespace | default .Release.Namespace }}
+  name: {{ required "issuer.name is required" $issuer.name }}
+  namespace: {{ $issuer.namespace | default $.Release.Namespace }}
 spec:
   acme:
-    email: {{ required .Values.issuer.email "issuer.email is required" }}
-    server: {{ .Values.issuer.server }}
+    email: {{ required "issuer.email is required" $issuer.email }}
+    server: {{ required "issuer.acmeServer is required" $issuer.acmeServer }}
     privateKeySecretRef:
-      name: acme-issuer-account-key
+      name: {{ $issuer.privateKeySecret | default (printf "%s-%s" $issuer.name "acme-key") }}
     solvers:
     - dns01:
         webhook:
-          groupName: {{ .Values.groupName }}
+          groupName: {{ $.Values.groupName }}
           solverName: httpreq
           config:
-            endpoint: {{ required .Values.issuer.endpoint "issuer.endpoint is required" }}
-            {{- if .Values.issuer.headersSecretRef }}
+            endpoint: {{ required "issuer.endpoint is required" $issuer.endpoint }}
+            {{- if $issuer.headersSecretRef }}
             headerSecretRef:
-              name: {{ .Values.issuer.headersSecretRef.name }}
-              namespace: {{ .Values.issuer.headersSecretRef.namespace }}
+              name: {{ $issuer.headersSecretRef.name }}
+              namespace: {{ $issuer.headersSecretRef.namespace }}
             {{- end }}
 {{- end }}
-{{- if .Values.clusterIssuer.enabled }}
+{{- range $clusterIssuer := .Values.clusterIssuers }}
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: {{ .Values.clusterIssuer.name }}
+  name: {{ required "clusterIssuer.name is required" $clusterIssuer.name }}
 spec:
   acme:
-    email: {{ required .Values.clusterIssuer.email "clusterIssuer.email is required" }}
-    server: {{ .Values.clusterIssuer.server }}
+    email: {{ required "clusterIssuer.email is required" $clusterIssuer.email }}
+    server: {{ required "clusterIssuer.acmeServer is required" $clusterIssuer.acmeServer }}
     privateKeySecretRef:
-      name: acme-cluster-issuer-account-key
+      name: {{ $clusterIssuer.privateKeySecret | default (printf "%s-%s" $clusterIssuer.name "acme-key") }}
     solvers:
     - dns01:
         webhook:
-          groupName: {{ .Values.groupName }}
+          groupName: {{ $.Values.groupName }}
           solverName: httpreq
           config:
-            endpoint: {{ required .Values.issuer.endpoint "issuer.endpoint is required" }}
-            {{- if .Values.issuer.headersSecretRef }}
+            endpoint: {{ required "clusterIssuer.endpoint is required" $clusterIssuer.endpoint }}
+            {{- if $clusterIssuer.headersSecretRef }}
             headerSecretRef:
-              name: {{ .Values.issuer.headersSecretRef.name }}
-              namespace: {{ .Values.issuer.headersSecretRef.namespace }}
+              name: {{ $clusterIssuer.headersSecretRef.name }}
+              namespace: {{ $clusterIssuer.headersSecretRef.namespace }}
             {{- end }}
 {{- end }}
