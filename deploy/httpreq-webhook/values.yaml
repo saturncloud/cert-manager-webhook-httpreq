@@ -5,7 +5,7 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: saturncloud/cert-manager-webhook-httpreq
+  repository: ghcr.io/saturncloud/cert-manager-webhook-httpreq
   # Tag defaults to chart appVersion
   tag:
   pullPolicy: IfNotPresent

@@ -22,11 +22,21 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Build Image
+    - name: GHCR login
+      uses: docker/login-action@v3
+      with:
+        registry: https://ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push image
       run: |
-        IMAGE_NAME=saturncloud/cert-manager-webhook-httpreq
+        IMAGE_NAME=ghcr.io/saturncloud/cert-manager-webhook-httpreq
         IMAGE_TAG=${{ github.ref_name }}
         make build -e IMAGE_NAME=${IMAGE_NAME} -e IMAGE_TAG=${IMAGE_TAG}
+        docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+        docker push ${IMAGE_NAME}:latest
 
     - name: Package Helm
       run: |
