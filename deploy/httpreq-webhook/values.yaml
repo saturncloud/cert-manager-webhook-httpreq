@@ -5,8 +5,9 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: mycompany/webhook-image
-  tag: latest
+  repository: saturncloud/cert-manager-webhook-httpreq
+  # Tag defaults to chart appVersion
+  tag:
   pullPolicy: IfNotPresent
 
 nameOverride: ""

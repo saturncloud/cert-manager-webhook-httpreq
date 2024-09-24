@@ -22,15 +22,24 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
+    - name: Build Image
+      run: |
+        IMAGE_NAME=saturncloud/cert-manager-webhook-httpreq
+        IMAGE_TAG=${{ github.ref_name }}
+        make build -e IMAGE_NAME=${IMAGE_NAME} -e IMAGE_TAG=${IMAGE_TAG}
+
+    - name: Package Helm
+      run: |
+        APP_VERSION=${{ github.ref_name }}
+        CHART_VERSION=${APP_VERSION#v}
+        mkdir .cr-release-packages/
+        helm package deploy/httpreq-webhook -d .cr-release-packages/ --app-version ${APP_VERSION} --version ${CHART_VERSION}
+
     - name: Run chart-releaser
       uses: helm/chart-releaser-action@v1.6.0
       env:
         CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       with:
         charts_dir: deploy/
-
-    - name: Build Image
-      run: |
-        IMAGE_NAME=saturncloud/cert-manager-webhook-httpreq
-        IMAGE_TAG=${{ github.ref_name }}
-        make build -e IMAGE_NAME -e IMAGE_TAG
+        skip_packaging: false
+        skip_existing: true
