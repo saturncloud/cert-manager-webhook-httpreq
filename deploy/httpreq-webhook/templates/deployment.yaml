@@ -14,6 +14,11 @@ spec:
     matchLabels:
       app: {{ include "httpreq-webhook.name" . }}
       release: {{ .Release.Name }}
+
+  {{- if .Values.strategy }}
+  strategy:
+    {{ toYaml .Values.strategy | nindent 4 }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -35,6 +40,7 @@ spec:
             {{- if not (kindIs "invalid" .Values.logLevel) }}
             - --v={{ .Values.logLevel }}
             {{- end }}
+            - --secure-port={{ .securePort }}
           env:
             - name: GROUP_NAME
               value: {{ .Values.groupName | quote }}
@@ -43,7 +49,7 @@ spec:
             {{- end }}
           ports:
             - name: https
-              containerPort: 443
+              containerPort: {{ .Values.securePort }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -65,6 +71,12 @@ spec:
         - name: certs
           secret:
             secretName: {{ include "httpreq-webhook.servingCertificate" . }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- if or .Values.dnsPolicy .Values.hostNetwork }}
+      dnsPolicy: {{ .Values.dnsPolicy | default "ClusterFirstWithHostNet" }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}

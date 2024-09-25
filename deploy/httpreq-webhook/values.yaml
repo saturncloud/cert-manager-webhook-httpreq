@@ -44,6 +44,21 @@ service:
   type: ClusterIP
   port: 443
 
+# Required for EKS with custom CNI
+# https://cert-manager.io/docs/concepts/webhook/#webhook-connection-problems-on-aws-eks
+hostNetwork: false
+dnsPolicy:  # Default to ClusterFirstWithHostNet if hostNetwork is true
+securePort: 12443
+
+# Deployment update strategy
+# With hostNetwork, you may want to set maxUnavailable 1 so pod can rebind to same port on the node
+strategy:
+  # type: RollingUpdate
+  # rollingUpdate:
+  #   maxSurge: 0
+  #   maxUnavailable: 1
+
+
 resources: {}
   # limits:
   #  cpu: 100m
