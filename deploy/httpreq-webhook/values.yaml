@@ -1,4 +1,4 @@
-groupName: acme-httpreq.saturncloud.io
+groupName: acme.saturncloud.io
 
 issuers: []
   # - name: httpreq-issuer
