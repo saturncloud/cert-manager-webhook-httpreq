@@ -179,7 +179,7 @@ roleRef:
 subjects:
   - apiGroup: ""
     kind: ServiceAccount
-    name: {{ include "httpreq-webhook.fullname" . }}
+    name: {{ include "httpreq-webhook.fullname" $ }}
     namespace: {{ $.Release.Namespace }}
 {{- end }}
 {{- end }}
