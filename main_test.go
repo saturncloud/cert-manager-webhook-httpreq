@@ -19,7 +19,7 @@ var (
 )
 
 func TestRunsSuite(t *testing.T) {
-	issuerConfig, err := loadIssuerConfig(configFile)
+	issuerConfig, err := loadIssuerConfig(t, configFile)
 	assert.NoError(t, err, "Exected no error from loading issuer config")
 
 	acmeOptions := []acmetest.Option{
@@ -51,12 +51,16 @@ func TestRunsSuite(t *testing.T) {
 	fixture.RunExtended(t)
 }
 
-func loadIssuerConfig(file string) (issuerConfig httpreq.IssuerConfig, err error) {
+func loadIssuerConfig(t *testing.T, file string) (issuerConfig httpreq.IssuerConfig, err error) {
+	t.Helper()
 	f, err := os.Open(file)
 	if err != nil {
 		return issuerConfig, err
 	}
-	defer f.Close()
+	defer func() {
+		err := f.Close()
+		assert.NoError(t, err, "Exected no error from closing issuer config file")
+	}()
 
 	err = json.NewDecoder(f).Decode(&issuerConfig)
 	return issuerConfig, err
