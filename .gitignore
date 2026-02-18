@@ -15,6 +15,7 @@
 cert-manager-webhook-httpreq
 
 # Make artifacts
+bin
 _out
 _test
 
